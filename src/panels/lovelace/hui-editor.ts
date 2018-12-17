@@ -16,7 +16,7 @@ const TAB_INSERT = "  ";
 
 const lovelaceStruct = struct.partial({
   title: "string?",
-  views: ['object'],
+  views: ["object"],
 });
 
 class LovelaceFullConfigEditor extends hassLocalizeLitMixin(LitElement) {
@@ -125,13 +125,17 @@ class LovelaceFullConfigEditor extends hassLocalizeLitMixin(LitElement) {
   private _handleSave() {
     let value;
     const text = this.textArea.value;
-    
+
     if (text.includes("#")) {
-      if(!confirm("Your config contains comments, these will not be saved. Do you want to continue?")) {
+      if (
+        !confirm(
+          "Your config might contains comments, these will not be saved. Do you want to continue?"
+        )
+      ) {
         return;
       }
     }
-    
+
     try {
       value = yaml.safeLoad(text);
     } catch (err) {
