@@ -8,10 +8,17 @@ import "@polymer/app-layout/app-toolbar/app-toolbar";
 import "@polymer/paper-button/paper-button";
 import "@polymer/paper-icon-button/paper-icon-button";
 
+import { struct } from "./common/structs/struct";
 import { Lovelace } from "./types";
 import { hassLocalizeLitMixin } from "../../mixins/lit-localize-mixin";
 
 const TAB_INSERT = "  ";
+
+const lovelaceStruct = struct.partial({
+  title: "string?",
+  resources: [],
+  views: [],
+});
 
 class LovelaceFullConfigEditor extends hassLocalizeLitMixin(LitElement) {
   public lovelace?: Lovelace;
@@ -118,13 +125,26 @@ class LovelaceFullConfigEditor extends hassLocalizeLitMixin(LitElement) {
 
   private _handleSave() {
     let value;
+    const text = this.textArea.value;
+    
+    if (text.includes("#")) {
+      if(!confirm("Your config contains comments, these will not be saved. Do you want to continue?")) {
+        return;
+      }
+    }
+    
     try {
-      value = yaml.safeLoad(this.textArea.value);
+      value = yaml.safeLoad(text);
     } catch (err) {
       alert(`Unable to parse YAML: ${err}`);
       return;
     }
-
+    try {
+      value = lovelaceStruct(value);
+    } catch (err) {
+      alert(`Your config is not valid: ${err}`);
+      return;
+    }
     this.lovelace!.saveConfig(value);
   }
 
